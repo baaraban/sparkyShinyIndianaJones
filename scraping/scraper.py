@@ -73,6 +73,7 @@ def scrape_page_wikidata(title):
         R = S.get(url="https://query.wikidata.org/sparql", params=PARAMS)
         wikidata_json = R.json()
         results = {}
+        print(wikidata_json)
         for obj in wikidata_json['results']['bindings']:
             key = obj['wdLabel']['value']
             val = obj['ps_Label']['value']
