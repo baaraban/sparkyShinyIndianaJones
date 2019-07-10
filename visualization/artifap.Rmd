@@ -1,0 +1,43 @@
+---
+title: "artifap"
+author: "Nazariy Perepichka"
+date: "July 10, 2019"
+output: html_document
+runtime: shiny
+---
+## Libraries loading
+```{r}
+library(shiny)
+library(leaflet)
+```
+
+## User interface
+```{r}
+ui <- fluidPage(
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles/index.css")
+  ),
+  titlePanel("Artifacts explorer"),
+  fluidRow(
+    column(3, textInput("input", "Something gonna be here")),
+    column(9, leafletOutput("map"))
+  )
+)
+```
+
+```{r}
+server <- function(input, output, session) {
+  
+  output$map <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles(providers$Stamen.TonerLite,
+        options = providerTileOptions(noWrap = TRUE)
+      ) 
+    })
+  
+  }
+```
+
+```{r}
+shinyApp(ui, server)
+```
