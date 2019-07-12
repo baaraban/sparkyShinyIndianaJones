@@ -1,4 +1,5 @@
 import requests
+from dateutil.parser import parse
 
 def getLatLonFromAddress(address = ""):
     api_url = 'https://maps.googleapis.com/maps/api/geocode/json'
@@ -11,3 +12,10 @@ def getLatLonFromAddress(address = ""):
     return lat_lon
 
 #getLatLonFromAddress("Lviv")
+
+def parseRandomDate(date_str):
+    parsed_date = parse(date_str)
+    #print(parsed_date)
+    return parsed_date
+
+#parseRandomDate("2017 Jan 03")
