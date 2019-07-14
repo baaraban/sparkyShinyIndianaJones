@@ -6,3 +6,5 @@
 **/obj/
 *.Rhistory
 *.RData
+data_collection/wiki_scraping/wiki_text.csv
+data_collection/wiki_scraping/wikidata_and_text.csv
