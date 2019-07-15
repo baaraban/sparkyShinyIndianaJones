@@ -6,3 +6,5 @@
 **/obj/
 *.Rhistory
 *.RData
+
+**/tryings.ipynb
