@@ -30,9 +30,16 @@ class LouvrePreprocessor(BasePreprocessor):
         return re.compile(r'.*louvre.*\.csv')
 
     def preprocess(self, dataframe):
-        new_df = dataframe.withColumn("acquiring_dates", get_acquiring_dates(dataframe["acquired_by"]))
+        new_df = dataframe.withColumn("acquiring_dates", get_acquiring_dates("acquired_by"))
+        new_df = new_df.withColumn("creation_date", get_creation_dates("creation_info"))
         new_df = new_df.withColumn("image_link", transform_image_link("image_link"))
         return new_df
+
+
+@pandas_udf(returnType=StringType(), functionType=PandasUDFType.SCALAR)
+def get_creation_dates(documents):
+    parser = LouvrePreprocessor.get_parser()
+    return pd.Series([str(parser.get_single_date_location_pair(x)) for x in documents])
 
 
 @pandas_udf(returnType=StringType(), functionType=PandasUDFType.SCALAR)

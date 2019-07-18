@@ -40,7 +40,7 @@ class TextParser:
             for loc in locations:
                 loc_score = self._calc_score(date, loc)
                 if loc_score > score:
-                    pair = {date:loc}
+                    pair = {date:loc[0]}
         return pair
 
     def get_entities(self, text):
