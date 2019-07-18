@@ -30,16 +30,42 @@ class LouvrePreprocessor(BasePreprocessor):
         return re.compile(r'.*louvre.*\.csv')
 
     def preprocess(self, dataframe):
-        new_df = dataframe.withColumn("acquiring_dates", get_acquiring_dates("acquired_by"))
+        new_df = dataframe.withColumn("movement_dates", get_movement_dates("text"))
+        new_df = new_df.withColumn("acquiring_date", get_acquiring_dates("acquired_by"))
         new_df = new_df.withColumn("creation_date", get_creation_dates("creation_info"))
         new_df = new_df.withColumn("image_link", transform_image_link("image_link"))
         return new_df
 
 
 @pandas_udf(returnType=StringType(), functionType=PandasUDFType.SCALAR)
+def get_movement_dates(documents):
+    parser = LouvrePreprocessor.get_parser()
+
+    def prepare_element(x):
+        return x.split('Bibliography')[0].strip().replace('\n', '. ').replace('\t', '')
+
+    def get_element(x):
+        transitions = parser.get_text_date_location_per_sentence(x)
+        if transitions:
+            return str(transitions)
+        else:
+            return ''
+
+    return pd.Series([get_element(prepare_element(x)) for x in documents])
+
+
+@pandas_udf(returnType=StringType(), functionType=PandasUDFType.SCALAR)
 def get_creation_dates(documents):
     parser = LouvrePreprocessor.get_parser()
-    return pd.Series([str(parser.get_single_date_location_pair(x)) for x in documents])
+
+    def get_element(x):
+        transition = parser.get_single_date_location_pair(x)
+        if transition:
+            return str(transition)
+        else:
+            return ''
+
+    return pd.Series([get_element(x) for x in documents])
 
 
 @pandas_udf(returnType=StringType(), functionType=PandasUDFType.SCALAR)
@@ -56,7 +82,7 @@ def get_acquiring_dates(documents):
     return pd.Series([get_element(x) for x in documents])
 
 
-@pandas_udf(returnType = StringType(), functionType=PandasUDFType.SCALAR)
+@pandas_udf(returnType=StringType(), functionType=PandasUDFType.SCALAR)
 def transform_image_link(img_links):
     literal = 'https://www.louvre.fr'
     return img_links.apply(lambda x: str(x)[len(literal):])
