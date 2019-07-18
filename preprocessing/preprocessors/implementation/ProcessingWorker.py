@@ -18,7 +18,9 @@ class ProcessingWorker:
 
             df = prep.preprocess(df)
 
-            #df.toPandas().to_csv(f'{self.saving_path}/{prep.get_data_source_name()}.csv', index=False)
+            path = f'{self.saving_path}/{prep.get_data_source_name()}.csv'
+            #df.repartition(1).write.format('com.databricks.spark.csv').save(path, header='true')
+            df.toPandas().to_csv(f'{self.saving_path}/{prep.get_data_source_name()}.csv', index=False)
 
     def execute_preprocessors(self):
         for prep in tqdm(self.preprocessors):

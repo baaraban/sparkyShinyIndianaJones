@@ -49,7 +49,7 @@ def get_acquiring_dates(documents):
     return pd.Series([get_element(x) for x in documents])
 
 
-@udf(returnType = StringType())
-def transform_image_link(img_link):
+@pandas_udf(returnType = StringType(), functionType=PandasUDFType.SCALAR)
+def transform_image_link(img_links):
     literal = 'https://www.louvre.fr'
-    return str(img_link)[len(literal):]
+    return img_links.apply(lambda x: str(x)[len(literal):])
