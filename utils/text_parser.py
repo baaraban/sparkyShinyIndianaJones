@@ -22,7 +22,26 @@ class TextParser:
 
     def get_locations_with_priorities(self, text):
         location_tags = ['GPE', 'FAC', 'ORG']
-        return {x : location_tags.index(x.label_) for x in self.model(text).ents if x.label_ in location_tags}
+        return [(x, location_tags.index(x.label_) + 1) for x in self.model(text).ents if x.label_ in location_tags]
+
+    def _calc_score(self, date, loc):
+        location, priority = loc
+        distance = abs(date.start - location.start)
+        return 1 / (distance * priority)
+
+    def get_single_date_location_pair(self, text):
+        dates = self.get_dates(text)
+        locations = self.get_locations_with_priorities(text)
+        if not any(dates) or not any(locations):
+            return {}
+        score = 0
+        pair = None
+        for date in dates:
+            for loc in locations:
+                loc_score = self._calc_score(date, loc)
+                if loc_score > score:
+                    pair = {date:loc}
+        return pair
 
     def get_entities(self, text):
         return [(x.text, x.label_, x.start) for x in self.model(text).ents]
