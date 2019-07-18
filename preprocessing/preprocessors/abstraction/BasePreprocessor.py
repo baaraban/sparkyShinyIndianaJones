@@ -14,5 +14,5 @@ class BasePreprocessor(ABC):
         pass
 
     @abstractmethod
-    def get_transformation_dict(self):
+    def preprocess(self, dataframe):
         pass
