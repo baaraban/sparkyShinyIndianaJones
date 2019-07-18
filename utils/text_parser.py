@@ -43,6 +43,8 @@ class TextParser:
                     pair = {date:loc[0]}
         return pair
 
+    def get_text_date_location_per_sentence(self, text):
+        return [self.get_single_date_location_pair(x) for x in text.split('.') if x]
+
     def get_entities(self, text):
         return [(x.text, x.label_, x.start) for x in self.model(text).ents]
-
