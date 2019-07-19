@@ -9,18 +9,42 @@ runtime: shiny
 ```{r}
 library(shiny)
 library(leaflet)
+library(RColorBrewer)
+library(ggplot2)
+library(dplyr)
+```
+
+
+## Data loading
+```{r}
+DATA_PATH = 'data/for_visual.csv'
+data <- read.csv(DATA_PATH)
+```
+
+## UI calculations
+```{r}
+min_year <- min(data$year)
+max_year <- max(data$year)
 ```
 
 ## User interface
 ```{r}
-ui <- fluidPage(
-  tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "styles/index.css")
-  ),
-  titlePanel("Artifacts explorer"),
-  fluidRow(
-    column(3, textInput("input", "Something gonna be here")),
-    column(9, leafletOutput("map"))
+ui <- navbarPage("artifacts", id='nav',
+  tabPanel("Interactive map",
+    div(class="outer",
+      tags$head(
+        # Include our custom CSS
+        includeCSS("styles/index.css")
+      ),
+      leafletOutput("map", width="100%", height="100%"),
+      absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
+        draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
+        width = 450, height = "auto",
+        fluidRow(
+                 column(12, sliderInput("year_range", label=h3("Years"), min=min_year, max=max_year,  c(min_year, max_year)))
+                 )
+      )
+    )
   )
 )
 ```
@@ -28,12 +52,25 @@ ui <- fluidPage(
 ```{r}
 server <- function(input, output, session) {
   
-  output$map <- renderLeaflet({
+  artifactsInYears <- reactive({
+    year_range = input$year_range
+    filter(data, year >= year_range[1] & year <= year_range[2])
+  })
+  
+  output$map <-  output$map <- renderLeaflet({
     leaflet() %>%
       addProviderTiles(providers$Stamen.TonerLite,
         options = providerTileOptions(noWrap = TRUE)
-      ) 
-    })
+      ) %>%
+      addCircles(data = artifactsInYears(),
+                 radius = 25,
+                 weight = 1,
+                 lng = ~lon, 
+                 lat = ~lat,
+                 color = "#777777",
+                 #fillColor = ~colorpal()(price),
+                 fillOpacity = 0.7)
+  })
   
   }
 ```
