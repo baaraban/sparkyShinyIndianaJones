@@ -7,5 +7,8 @@ def get_lat_lon(address):
     params = '?address={}&key={}'.format(address, API_key)
     response = requests.get(api_url + params)
     resp_json_payload = response.json()
-    lat_lon = resp_json_payload['results'][0]['geometry']['location']
-    return lat_lon
+    lat_lon = None
+    try:
+        lat_lon = resp_json_payload['results'][0]['geometry']['location']
+    finally:
+        return lat_lon
