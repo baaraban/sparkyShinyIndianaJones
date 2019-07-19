@@ -1,5 +1,5 @@
 {
-	'name' : 'string',
-	'description' : 'string',
-	'transitions' : ['year' : ('long', 'lat')]
+	'artifact_name' : 'string',
+	'transitions' : ['date' : ('long', 'lat')],
+    'image_link' : 'string',
 }
