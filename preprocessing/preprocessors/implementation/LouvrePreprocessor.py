@@ -63,7 +63,7 @@ def get_creation_dates(documents):
         if transition:
             return str(transition)
         else:
-            return ''
+            return '{}'
 
     return pd.Series([get_element(x) for x in documents])
 
@@ -75,7 +75,7 @@ def get_acquiring_dates(documents):
     def get_element(x):
         dates = parser.get_dates(str(x))
         if len(dates) == 0:
-            return ""
+            return '{}'
         else:
             return str({dates[0] : LouvrePreprocessor.get_louvre_location()})
 
