@@ -34,7 +34,8 @@ class LouvrePreprocessor(BasePreprocessor):
         new_df = new_df.withColumn("acquiring_date", get_acquiring_dates("acquired_by"))
         new_df = new_df.withColumn("creation_date", get_creation_dates("creation_info"))
         new_df = new_df.withColumn("image_link", transform_image_link("image_link"))
-        return new_df
+        new_df = new_df.withColumn("transitions", concat('acquiring_date', 'creation_date', 'movement_dates'))
+        return new_df[['artifact_name', 'transitions', 'image_link']]
 
 
 @pandas_udf(returnType=StringType(), functionType=PandasUDFType.SCALAR)
