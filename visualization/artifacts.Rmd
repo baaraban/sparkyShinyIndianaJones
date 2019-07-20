@@ -21,6 +21,19 @@ DATA_PATH = 'data/for_visual.csv'
 data <- read.csv(DATA_PATH)
 ```
 
+```{r}
+data <- data %>%
+      arrange(year) %>%
+      group_by(artifact_name) %>%
+      filter(n() > 1)
+      
+    data$lat_start <- ave(data$lat, data$artifact_name, FUN=function(x) c(0, x))
+    data$lon_start <- ave(data$lon, data$artifact_name, FUN=function(x) c(0, x))
+    
+    data <- data %>%
+      filter(lon_start == 0 & lat_start == 0) 
+```
+
 ## UI calculations
 ```{r}
 min_year <- min(data$year) 
@@ -59,17 +72,6 @@ server <- function(input, output, session) {
   
   output$map <- renderLeaflet({
     directions = artifactsInYears()
-    directions <- directions %>%
-      arrange(year) %>%
-      group_by(artifact_name) %>%
-      filter(n() > 1)
-      
-    directions$lat_start <- ave(directions$lat, directions$artifact_name, FUN=function(x) c(0, x))
-    directions$lon_start <- ave(directions$lon, directions$artifact_name, FUN=function(x) c(0, x))
-    
-    directions <- directions %>%
-      filter(lon_start > 0) %>%
-      filter(lat_start > 0)
     
     pal <- colorNumeric(palette = "Accent", domain = directions$year, n = 5)
     

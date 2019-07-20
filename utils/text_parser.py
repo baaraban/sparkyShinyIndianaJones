@@ -5,7 +5,7 @@ import re
 
 class TextParser:
     art_words = ['statue', 'tool', 'portrait',
-                 'peisage',
+                 'peisage', 'treasure',
                  'blade', 'painting', 'axe',
                  'jewelry', 'fresco', 'arrow', 'the work']
 
@@ -39,7 +39,11 @@ class TextParser:
         location, priority = loc
         date_location = (date.start, date.start + len(date))
         location_location = (location.start, location.start + len(location))
-        date_distance = get_distance(entity_location, date_location)
+        try:
+            date_distance = get_distance(entity_location, date_location)
+        except:
+            print("Problem with date")
+            return float("-inf")
         location_distance = get_distance(entity_location, location_location)
         if date_distance == 0 or location_distance == 0:
             return float("-inf")
@@ -74,6 +78,9 @@ class TextParser:
             answer.extend([(x, get_start_end_tuple(word, x)) for x in to_append])
 
         return answer
+
+    def parse_entity_movement(self, text, aliases):
+        return self.get_text_date_location_per_sentence(self.get_sentences_with_artifacts(text, aliases))
 
     def get_text_date_location_per_sentence(self, text_location_tuple):
         return [self.get_single_date_location_pair(*x) for x in text_location_tuple]
