@@ -57,19 +57,29 @@ server <- function(input, output, session) {
     filter(data, year >= year_range[1] & year <= year_range[2])
   })
   
-  output$map <-  output$map <- renderLeaflet({
+  output$map <- renderLeaflet({
+    directions = artifactsInYears()
+    directions <- directions %>%
+      arrange(year) %>%
+      group_by(artifact_name) %>%
+      filter(n() > 1)
+      
+    directions$lat_start <- ave(directions$lat, directions$artifact_name, FUN=function(x) c(0, x))
+    directions$lon_start <- ave(directions$lon, directions$artifact_name, FUN=function(x) c(0, x))
+    
+    directions <- directions %>%
+      filter(lon_start > 0) %>%
+      filter(lat_start > 0)
+    
     leaflet() %>%
       addProviderTiles(providers$Stamen.TonerLite,
         options = providerTileOptions(noWrap = TRUE)
       ) %>%
-      addCircles(data = artifactsInYears(),
-                 radius = 25,
-                 weight = 1,
-                 lng = ~lon, 
-                 lat = ~lat,
-                 color = "#777777",
-                 #fillColor = ~colorpal()(price),
-                 fillOpacity = 0.7)
+      addPolylines(
+          data = directions,
+          lng = ~ c(lon_start, lon),
+          lat = ~ c(lat_start, lat)
+      )
   })
   
   }
