@@ -30,21 +30,33 @@ class TextParser:
         location_tags = ['GPE', 'FAC', 'ORG']
         return [(x, location_tags.index(x.label_) + 1) for x in self.model(text).ents if x.label_ in location_tags]
 
-    def _calc_score(self, date, loc):
-        location, priority = loc
-        distance = abs(date.start - location.start)
-        return 1 / (distance * priority)
+    def _calc_score(self, date, loc, entity_location):
+        def get_distance(first, second):
+            var1 = first[0] - second[1]
+            var2 = first[1] - second[0]
+            return min(var1, var2)
 
-    def get_single_date_location_pair(self, text):
+        location, priority = loc
+        date_location = (date.start, date.start + len(date))
+        location_location = (location.start, location.start + len(location))
+        date_distance = get_distance(entity_location, date_location)
+        location_distance = get_distance(entity_location, location_location)
+        if date_distance == 0 or location_distance == 0:
+            return float("-inf")
+        return (1/date_distance) + (1/priority*location_distance)
+
+    def get_single_date_location_pair(self, text, entity_location):
         dates = self.get_dates(text)
         locations = self.get_locations_with_priorities(text)
         if not any(dates) or not any(locations):
             return {}
-        score = 0
+        score = float("-inf")
         pair = None
         for date in dates:
             for loc in locations:
-                loc_score = self._calc_score(date, loc)
+                if date.start == entity_location[0] or loc[0].start == entity_location[0]:
+                    continue
+                loc_score = self._calc_score(date, loc, entity_location)
                 if loc_score > score:
                     pair = {date:loc[0]}
         return pair
@@ -63,8 +75,5 @@ class TextParser:
 
         return answer
 
-    def get_text_date_location_per_sentence(self, text):
-        return [self.get_single_date_location_pair(x) for x in text.split('.')]
-
-    def get_entities(self, text):
-        return [(x.text, x.label_, x.start) for x in self.model(text).ents]
+    def get_text_date_location_per_sentence(self, text_location_tuple):
+        return [self.get_single_date_location_pair(*x) for x in text_location_tuple]
