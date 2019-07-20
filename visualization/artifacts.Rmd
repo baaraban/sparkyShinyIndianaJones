@@ -71,15 +71,23 @@ server <- function(input, output, session) {
       filter(lon_start > 0) %>%
       filter(lat_start > 0)
     
+    pal <- colorNumeric(palette = "Accent", domain = directions$year, n = 5)
+    
     leaflet() %>%
       addProviderTiles(providers$Stamen.TonerLite,
         options = providerTileOptions(noWrap = TRUE)
       ) %>%
       addPolylines(
           data = directions,
+          weight = 1,
+          opacity = 0.5,
           lng = ~ c(lon_start, lon),
-          lat = ~ c(lat_start, lat)
-      )
+          lat = ~ c(lat_start, lat),
+          color = ~pal(year)
+      #)
+      # This approach to add colors is actually bad
+      ) %>%
+      addLegend(data = directions, pal = pal, values = ~year, opacity = 0.5)
   })
   
   }
