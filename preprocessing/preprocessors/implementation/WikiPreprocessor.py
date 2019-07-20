@@ -27,7 +27,7 @@ class WikiPreprocessor(BasePreprocessor):
     def preprocess(self, dataframe):
         current_date = str(datetime.now())
         dataframe = dataframe.limit(10)
-        new_df = dataframe.withColumn("movement_dates", get_movement_dates("text"))
+        new_df = dataframe.withColumn("movement_dates", get_movement_dates("text", "title"))
         new_df = new_df.withColumn("creation_date",
                                 when(col('inception').isNull() | col('country').isNull(), "{}")\
                                 .otherwise("{" + col('inception') + ":" + col('country') + "}"))
@@ -41,7 +41,7 @@ class WikiPreprocessor(BasePreprocessor):
 
 
 @pandas_udf(returnType=StringType(), functionType=PandasUDFType.SCALAR)
-def get_movement_dates(documents):
+def get_movement_dates(documents, titles):
     parser = WikiPreprocessor.get_parser()
 
     def prepare_element(x):
@@ -49,13 +49,16 @@ def get_movement_dates(documents):
             return None
         return x.split('Bibliography')[0].strip().replace('\n', '. ').replace('\t', '')
 
-    def get_element(x):
+    def get_title(title):
+        return str(title)[0].strip('(')
+
+    def get_element(x, aliases):
         if not x:
             return '{}'
-        transitions = parser.get_text_date_location_per_sentence(x)
+        transitions = parser.parse_entity_movement(x, aliases)
         if transitions:
             return str(transitions)
         else:
             return '{}'
 
-    return pd.Series([get_element(prepare_element(x)) for x in documents])
+    return pd.Series([get_element(prepare_element(x[0]), [get_title(x[1])]) for x in zip(documents, titles)])
