@@ -1,8 +1,14 @@
 import spacy
 import en_core_web_md
+import re
 
 
 class TextParser:
+    art_words = ['statue', 'tool', 'portrait',
+                 'peisage',
+                 'blade', 'painting', 'axe',
+                 'jewelry', 'fresco', 'arrow', 'the work']
+
     def __init__(self):
         spacy.load("en_core_web_md")
         self.model = en_core_web_md.load()
@@ -42,6 +48,20 @@ class TextParser:
                 if loc_score > score:
                     pair = {date:loc[0]}
         return pair
+
+    def get_sentences_with_artifacts(self, text, additional_words=[]):
+        def get_start_end_tuple(wor, sentence):
+            start = sentence.lower().find(wor)
+            end = start + len(wor)
+            return start, end
+
+        answer = []
+        indicators = TextParser.art_words + additional_words
+        for word in indicators:
+            to_append = re.findall(rf"([^.]*?{word}[^.]*\.)", text, flags=re.IGNORECASE)
+            answer.extend([(x, get_start_end_tuple(word, x)) for x in to_append])
+
+        return answer
 
     def get_text_date_location_per_sentence(self, text):
         return [self.get_single_date_location_pair(x) for x in text.split('.')]
