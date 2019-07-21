@@ -27,12 +27,17 @@ data <- data %>%
       group_by(artifact_name) %>%
       filter(n() > 1)
       
-    data$lat_start <- ave(data$lat, data$artifact_name, FUN=function(x) c(0, x))
-    data$lon_start <- ave(data$lon, data$artifact_name, FUN=function(x) c(0, x))
-    
-    data <- data %>%
-      filter(lon_start == 0 & lat_start == 0) 
+data$lat_start <- ave(data$lat, data$artifact_name, FUN=function(x) c(0, x))
+data$lon_start <- ave(data$lon, data$artifact_name, FUN=function(x) c(0, x))
+  
+data <- data %>%
+      filter(!(lon_start == 0 & lat_start == 0))
+
+
+
+data <- head(data, n = 100)
 ```
+
 
 ## UI calculations
 ```{r}
@@ -79,16 +84,24 @@ server <- function(input, output, session) {
       addProviderTiles(providers$Stamen.TonerLite,
         options = providerTileOptions(noWrap = TRUE)
       ) %>%
-      addPolylines(
-          data = directions,
-          weight = 1,
-          opacity = 0.5,
-          lng = ~ c(lon_start, lon),
-          lat = ~ c(lat_start, lat),
-          color = ~pal(year)
-      #)
-      # This approach to add colors is actually bad
-      ) %>%
+      addCircles(data = artifactsInYears(),
+                 radius = 2.5,
+                 weight = 10,
+                 lng = ~lon, 
+                 lat = ~lat,
+                 color = "#777777",
+                 fillColor = ~pal(year),
+                 fillOpacity = 0.7
+      )%>%
+       addPolylines(
+           data = artifactsInYears(),
+           weight = 1,
+           opacity = 0.5,
+           lng = ~ c(lon_start, lon),
+           lat = ~ c(lat_start, lat),
+           color = ~pal(year)
+      # # This approach to add colors is actually bad
+       ) %>%
       addLegend(data = directions, pal = pal, values = ~year, opacity = 0.5)
   })
   
