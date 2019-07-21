@@ -26,7 +26,6 @@ class WikiPreprocessor(BasePreprocessor):
 
     def preprocess(self, dataframe):
         current_date = str(datetime.now())
-        dataframe = dataframe.limit(10)
         new_df = dataframe.withColumn("movement_dates", get_movement_dates("text", "title"))
         new_df = new_df.withColumn("creation_date",
                                 when(col('inception').isNull() | col('country').isNull(), "{}")\
