@@ -1,0 +1,12 @@
+name: artifacts
+title: artifacts
+username:
+account: volodymyrlut
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1043190
+bundleId: 2250997
+url: https://volodymyrlut.shinyapps.io/artifacts/
+when: 1563674371.04953
+asMultiple: FALSE
+asStatic: FALSE
