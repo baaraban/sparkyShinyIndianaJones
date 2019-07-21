@@ -1,4 +1,11 @@
-This document describes main goal of wikipedia scraping, strategy and basic suggestion for the one, who would like to reproduce it, step-by-step instructions to reproduce it and results description.
+# Data collection
+
+## Louvre scraping
+The code for scraping Louvre official site can be found by following path - /museums_scraping/louvre_scraping.ipynb. <br>
+The code is pretty straightforward and easily reproducable.<br>
+Resulting dataset is saved to /museums_scraping/raw_data/ folder.
+
+## Wiki scraping
 
 ### Goal, Strategy, Warnings
 
