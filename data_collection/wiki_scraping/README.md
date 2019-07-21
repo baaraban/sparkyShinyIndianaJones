@@ -33,7 +33,7 @@ Also, some pages contains wikidata knowledge that could be useful: in this parti
 
 ### Results obtained
 
-
+Script collected **8550 full-text articles** about artifacts from **626 categories** and produced final raw csv file of ~46 MB in July 2019.
 
 This document and code in this folder are created as a part of the report for the Mining Massive Datasets final project at [APPS UCU](https://apps.ucu.edu.ua/).
 It is provided as is, free to use, without any warranty.
