@@ -1,0 +1,14 @@
+{
+  "name": "periodo-date-parser-wrapper-python",
+  "version": "1.0.0",
+  "description": "A tool to use periodo-date-parser in python calling Node.js script",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Volodymyr Lut, lut@ucu.edu.ua",
+  "license": "ISC",
+  "dependencies": {
+    "periodo-date-parser": "^1.0.1"
+  }
+}
